@@ -1,0 +1,290 @@
+﻿using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Reflection;
+using System.Collections.Generic;
+using PaintDotNet;
+using PaintDotNet.Effects;
+using PaintDotNet.IndirectUI;
+using PaintDotNet.PropertySystem;
+
+namespace GinghamEffect
+{
+    public class PluginSupportInfo : IPluginSupportInfo
+    {
+        public string Author
+        {
+            get
+            {
+                return ((AssemblyCopyrightAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false)[0]).Copyright;
+            }
+        }
+        public string Copyright
+        {
+            get
+            {
+                return ((AssemblyDescriptionAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)[0]).Description;
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                return ((AssemblyProductAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0]).Product;
+            }
+        }
+
+        public Version Version
+        {
+            get
+            {
+                return base.GetType().Assembly.GetName().Version;
+            }
+        }
+
+        public Uri WebsiteUri
+        {
+            get
+            {
+                return new Uri("http://www.getpaint.net/redirect/plugins.html");
+            }
+        }
+    }
+
+    [PluginSupportInfo(typeof(PluginSupportInfo), DisplayName = "Gingham")]
+    public class GinghamEffectPlugin : PropertyBasedEffect
+    {
+        public static string StaticName
+        {
+            get
+            {
+                return "Gingham";
+            }
+        }
+
+        public static Image StaticIcon
+        {
+            get
+            {
+                return new Bitmap(typeof(GinghamEffectPlugin), "Gingham.png");
+            }
+        }
+
+        public static string SubmenuName
+        {
+            get
+            {
+                return SubmenuNames.Render;  // Programmer's chosen default
+            }
+        }
+
+        public GinghamEffectPlugin()
+            : base(StaticName, StaticIcon, SubmenuName, EffectFlags.Configurable)
+        {
+        }
+
+        public enum PropertyNames
+        {
+            Amount1,
+            Amount2,
+            Amount3,
+            Amount4
+        }
+
+        public enum Amount3Options
+        {
+            Amount3Option1,
+            Amount3Option2,
+            Amount3Option3,
+            Amount3Option4
+        }
+
+        public enum Amount4Options
+        {
+            Amount4Option1,
+            Amount4Option2,
+            Amount4Option3,
+            Amount4Option4
+        }
+
+
+        protected override PropertyCollection OnCreatePropertyCollection()
+        {
+            List<Property> props = new List<Property>();
+
+            props.Add(new Int32Property(PropertyNames.Amount1, 20, 2, 100));
+            props.Add(new Int32Property(PropertyNames.Amount2, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff));
+            props.Add(StaticListChoiceProperty.CreateForEnum<Amount3Options>(PropertyNames.Amount3, Amount3Options.Amount3Option3, false));
+            props.Add(StaticListChoiceProperty.CreateForEnum<Amount4Options>(PropertyNames.Amount4, Amount4Options.Amount4Option4, false));
+
+            return new PropertyCollection(props);
+        }
+
+        protected override ControlInfo OnCreateConfigUI(PropertyCollection props)
+        {
+            ControlInfo configUI = CreateDefaultConfigUI(props);
+
+            configUI.SetPropertyControlValue(PropertyNames.Amount1, ControlInfoPropertyNames.DisplayName, "Line Width");
+            configUI.SetPropertyControlValue(PropertyNames.Amount2, ControlInfoPropertyNames.DisplayName, "Color");
+            configUI.SetPropertyControlType(PropertyNames.Amount2, PropertyControlType.ColorWheel);
+            configUI.SetPropertyControlValue(PropertyNames.Amount3, ControlInfoPropertyNames.DisplayName, "Horizontal Pattern");
+            PropertyControlInfo Amount3Control = configUI.FindControlForPropertyName(PropertyNames.Amount3);
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option1, "Solid - 33% Opacity");
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option2, "Solid - 66% Opacity");
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option3, "Diagonal Lines");
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option4, "50/50 Dots");
+            configUI.SetPropertyControlValue(PropertyNames.Amount4, ControlInfoPropertyNames.DisplayName, "Vertical Pattern");
+            PropertyControlInfo Amount4Control = configUI.FindControlForPropertyName(PropertyNames.Amount4);
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option1, "Solid - 33% Opacity");
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option2, "Solid - 66% Opacity");
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option3, "Diagonal Lines");
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option4, "50/50 Dots");
+
+            return configUI;
+        }
+
+        protected override void OnSetRenderInfo(PropertyBasedEffectConfigToken newToken, RenderArgs dstArgs, RenderArgs srcArgs)
+        {
+            Amount1 = newToken.GetProperty<Int32Property>(PropertyNames.Amount1).Value;
+            Amount2 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.Amount2).Value);
+            Amount3 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount3).Value);
+            Amount4 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount4).Value);
+
+            base.OnSetRenderInfo(newToken, dstArgs, srcArgs);
+
+
+            Rectangle selection = EnvironmentParameters.GetSelection(srcArgs.Bounds).GetBoundsInt();
+
+            Bitmap ginghamBitmap = new Bitmap(selection.Width, selection.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Graphics g = Graphics.FromImage(ginghamBitmap);
+
+            // Fill with white
+            Rectangle backgroundRect = new Rectangle(0, 0, selection.Width, selection.Height);
+            g.FillRectangle(new SolidBrush(Color.White), backgroundRect);
+
+            // Brush Styles
+            Brush solidBrush = new SolidBrush(Amount2);
+            Brush a33Brush = new SolidBrush(Color.FromArgb(85, Amount2));
+            Brush a66Brush = new SolidBrush(Color.FromArgb(170, Amount2));
+            HatchBrush diagonalBrush = new HatchBrush(HatchStyle.DarkUpwardDiagonal, Amount2, Color.White);
+            HatchBrush percent50Brush = new HatchBrush(HatchStyle.Percent50, Amount2, Color.White);
+
+            // Set pen styles.
+            Pen xPen;
+            switch (Amount3)
+            {
+                case 0:
+                    xPen = new Pen(a33Brush, Amount1);
+                    break;
+                case 1:
+                    xPen = new Pen(a66Brush, Amount1);
+                    break;
+                case 2:
+                    xPen = new Pen(diagonalBrush, Amount1);
+                    break;
+                case 3:
+                    xPen = new Pen(percent50Brush, Amount1);
+                    break;
+                default:
+                    xPen = new Pen(a33Brush, Amount1);
+                    break;
+            }
+            Pen yPen;
+            switch (Amount4)
+            {
+                case 0:
+                    yPen = new Pen(a33Brush, Amount1);
+                    break;
+                case 1:
+                    yPen = new Pen(a66Brush, Amount1);
+                    break;
+                case 2:
+                    yPen = new Pen(diagonalBrush, Amount1);
+                    break;
+                case 3:
+                    yPen = new Pen(percent50Brush, Amount1);
+                    break;
+                default:
+                    yPen = new Pen(a33Brush, Amount1);
+                    break;
+            }
+            Pen xyPen = new Pen(solidBrush, Amount1);
+
+            // Calculate the number of lines will fit in the selection
+            int xLines = (int)Math.Ceiling((double)selection.Height / Amount1 / 2);
+            int yLines = (int)Math.Ceiling((double)selection.Width / Amount1 / 2);
+
+            // Draw Horizontal Lines
+            for (int i = 0; i < xLines; i++)
+            {
+                // Create points that define line.
+                Point point1 = new Point(0, Amount1 / 2 + Amount1 * i * 2);
+                Point point2 = new Point(selection.Width, Amount1 / 2 + Amount1 * i * 2);
+
+                // Draw line to screen.
+                g.DrawLine(xPen, point1, point2);
+            }
+            // Draw Vertical Lines
+            for (int i = 0; i < yLines; i++)
+            {
+                // Create points that define line.
+                Point point1 = new Point(Amount1 / 2 + Amount1 * i * 2, 0);
+                Point point2 = new Point(Amount1 / 2 + Amount1 * i * 2, selection.Height);
+
+                // Draw line to screen.
+                g.DrawLine(yPen, point1, point2);
+            }
+            // Draw Horizontal & Vertical intersections
+            for (int x = 0; x < xLines; x++)
+            {
+                for (int y = 0; y < yLines; y++)
+                {
+                    // Create points that define line.
+                    Point point1 = new Point(Amount1 * 2 * y, Amount1 / 2 + Amount1 * x * 2);
+                    Point point2 = new Point(Amount1 * 2 * y + Amount1, Amount1 / 2 + Amount1 * x * 2);
+
+                    // Draw line to screen.
+                    g.DrawLine(xyPen, point1, point2);
+                }
+            }
+
+            ginghamSurface = Surface.CopyFromBitmap(ginghamBitmap);
+        }
+
+        protected override unsafe void OnRender(Rectangle[] rois, int startIndex, int length)
+        {
+            if (length == 0) return;
+            for (int i = startIndex; i < startIndex + length; ++i)
+            {
+                Render(DstArgs.Surface, SrcArgs.Surface, rois[i]);
+            }
+        }
+
+        #region User Entered Code
+        #region UICode
+        int Amount1 = 20; // [2,100] Line Width
+        ColorBgra Amount2 = ColorBgra.FromBgr(0, 0, 0); // Color
+        byte Amount3 = 2; // Horizontal Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines|50/50 Dots
+        byte Amount4 = 3; // Vertical Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines|50/50 Dots
+        #endregion
+
+        Surface ginghamSurface;
+
+        void Render(Surface dst, Surface src, Rectangle rect)
+        {
+            Rectangle selection = EnvironmentParameters.GetSelection(src.Bounds).GetBoundsInt();
+
+            for (int y = rect.Top; y < rect.Bottom; y++)
+            {
+                if (IsCancelRequested) return;
+                for (int x = rect.Left; x < rect.Right; x++)
+                {
+                    dst[x, y] = ginghamSurface.GetBilinearSample(x - selection.Left, y - selection.Top);
+                }
+            }
+        }
+
+        #endregion
+    }
+}
