@@ -97,7 +97,8 @@ namespace GinghamEffect
             Amount3Option1,
             Amount3Option2,
             Amount3Option3,
-            Amount3Option4
+            Amount3Option4,
+            Amount3Option5
         }
 
         public enum Amount4Options
@@ -105,7 +106,8 @@ namespace GinghamEffect
             Amount4Option1,
             Amount4Option2,
             Amount4Option3,
-            Amount4Option4
+            Amount4Option4,
+            Amount4Option5
         }
 
 
@@ -116,7 +118,7 @@ namespace GinghamEffect
             props.Add(new Int32Property(PropertyNames.Amount1, 20, 2, 100));
             props.Add(new Int32Property(PropertyNames.Amount2, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff));
             props.Add(StaticListChoiceProperty.CreateForEnum<Amount3Options>(PropertyNames.Amount3, Amount3Options.Amount3Option3, false));
-            props.Add(StaticListChoiceProperty.CreateForEnum<Amount4Options>(PropertyNames.Amount4, Amount4Options.Amount4Option4, false));
+            props.Add(StaticListChoiceProperty.CreateForEnum<Amount4Options>(PropertyNames.Amount4, Amount4Options.Amount4Option5, false));
 
             return new PropertyCollection(props);
         }
@@ -132,14 +134,16 @@ namespace GinghamEffect
             PropertyControlInfo Amount3Control = configUI.FindControlForPropertyName(PropertyNames.Amount3);
             Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option1, "Solid - 33% Opacity");
             Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option2, "Solid - 66% Opacity");
-            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option3, "Diagonal Lines");
-            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option4, "50/50 Dots");
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option3, "Diagonal Lines - Up");
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option4, "Diagonal Lines - Down");
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option5, "50/50 Dots");
             configUI.SetPropertyControlValue(PropertyNames.Amount4, ControlInfoPropertyNames.DisplayName, "Vertical Pattern");
             PropertyControlInfo Amount4Control = configUI.FindControlForPropertyName(PropertyNames.Amount4);
             Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option1, "Solid - 33% Opacity");
             Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option2, "Solid - 66% Opacity");
-            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option3, "Diagonal Lines");
-            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option4, "50/50 Dots");
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option3, "Diagonal Lines - Up");
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option4, "Diagonal Lines - Down");
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option5, "50/50 Dots");
 
             return configUI;
         }
@@ -176,7 +180,10 @@ namespace GinghamEffect
                 case 2: // Diagonal Lines Up
                     xBrush = new HatchBrush(HatchStyle.DarkUpwardDiagonal, Amount2, Color.White);
                     break;
-                case 3: // 50/50 Dots
+                case 3: // Diagonal Lines Down
+                    xBrush = new HatchBrush(HatchStyle.DarkDownwardDiagonal, Amount2, Color.White);
+                    break;
+                case 4: // 50/50 Dots
                     xBrush = new HatchBrush(HatchStyle.Percent50, Amount2, Color.White);
                     break;
                 default:
@@ -195,7 +202,10 @@ namespace GinghamEffect
                 case 2: // Diagonal Lines Up
                     yBrush = new HatchBrush(HatchStyle.DarkUpwardDiagonal, Amount2, Color.White);
                     break;
-                case 3: // 50/50 Dots
+                case 3: // Diagonal Lines Down
+                    yBrush = new HatchBrush(HatchStyle.DarkDownwardDiagonal, Amount2, Color.White);
+                    break;
+                case 4: // 50/50 Dots
                     yBrush = new HatchBrush(HatchStyle.Percent50, Amount2, Color.White);
                     break;
                 default:
@@ -263,8 +273,8 @@ namespace GinghamEffect
         #region UICode
         int Amount1 = 20; // [2,100] Line Width
         ColorBgra Amount2 = ColorBgra.FromBgr(0, 0, 0); // Color
-        byte Amount3 = 2; // Horizontal Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines|50/50 Dots
-        byte Amount4 = 3; // Vertical Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines|50/50 Dots
+        byte Amount3 = 2; // Horizontal Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
+        byte Amount4 = 4; // Vertical Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
         #endregion
 
         Surface ginghamSurface;
