@@ -163,52 +163,50 @@ namespace GinghamEffect
             Rectangle backgroundRect = new Rectangle(0, 0, selection.Width, selection.Height);
             g.FillRectangle(new SolidBrush(Color.White), backgroundRect);
 
-            // Brush Styles
-            Brush solidBrush = new SolidBrush(Amount2);
-            Brush a33Brush = new SolidBrush(Color.FromArgb(85, Amount2));
-            Brush a66Brush = new SolidBrush(Color.FromArgb(170, Amount2));
-            HatchBrush diagonalBrush = new HatchBrush(HatchStyle.DarkUpwardDiagonal, Amount2, Color.White);
-            HatchBrush percent50Brush = new HatchBrush(HatchStyle.Percent50, Amount2, Color.White);
-
-            // Set pen styles.
-            Pen xPen;
+            // Set Brush Styles
+            Brush xBrush;
             switch (Amount3)
             {
-                case 0:
-                    xPen = new Pen(a33Brush, Amount1);
+                case 0: // Solid 33% Opacity
+                    xBrush = new SolidBrush(Color.FromArgb(85, Amount2));
                     break;
-                case 1:
-                    xPen = new Pen(a66Brush, Amount1);
+                case 1: // Solid 66% Opacity
+                    xBrush = new SolidBrush(Color.FromArgb(170, Amount2));
                     break;
-                case 2:
-                    xPen = new Pen(diagonalBrush, Amount1);
+                case 2: // Diagonal Lines Up
+                    xBrush = new HatchBrush(HatchStyle.DarkUpwardDiagonal, Amount2, Color.White);
                     break;
-                case 3:
-                    xPen = new Pen(percent50Brush, Amount1);
+                case 3: // 50/50 Dots
+                    xBrush = new HatchBrush(HatchStyle.Percent50, Amount2, Color.White);
                     break;
                 default:
-                    xPen = new Pen(a33Brush, Amount1);
+                    xBrush = new SolidBrush(Color.FromArgb(85, Amount2));
                     break;
             }
-            Pen yPen;
+            Brush yBrush;
             switch (Amount4)
             {
-                case 0:
-                    yPen = new Pen(a33Brush, Amount1);
+                case 0: // Solid 33% Opacity
+                    yBrush = new SolidBrush(Color.FromArgb(85, Amount2));
                     break;
-                case 1:
-                    yPen = new Pen(a66Brush, Amount1);
+                case 1: // Solid 66% Opacity
+                    yBrush = new SolidBrush(Color.FromArgb(170, Amount2));
                     break;
-                case 2:
-                    yPen = new Pen(diagonalBrush, Amount1);
+                case 2: // Diagonal Lines Up
+                    yBrush = new HatchBrush(HatchStyle.DarkUpwardDiagonal, Amount2, Color.White);
                     break;
-                case 3:
-                    yPen = new Pen(percent50Brush, Amount1);
+                case 3: // 50/50 Dots
+                    yBrush = new HatchBrush(HatchStyle.Percent50, Amount2, Color.White);
                     break;
                 default:
-                    yPen = new Pen(a33Brush, Amount1);
+                    yBrush = new SolidBrush(Color.FromArgb(85, Amount2));
                     break;
             }
+            Brush solidBrush = new SolidBrush(Amount2);
+
+            // Set Pens
+            Pen xPen = new Pen(xBrush, Amount1);
+            Pen yPen = new Pen(yBrush, Amount1);
             Pen xyPen = new Pen(solidBrush, Amount1);
 
             // Calculate the number of lines will fit in the selection
