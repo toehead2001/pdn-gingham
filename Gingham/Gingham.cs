@@ -284,7 +284,7 @@ namespace GinghamEffect
         byte Amount4 = 4; // Vertical Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
         #endregion
 
-        Surface ginghamSurface;
+        private Surface ginghamSurface;
 
         void Render(Surface dst, Surface src, Rectangle rect)
         {
