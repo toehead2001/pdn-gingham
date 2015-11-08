@@ -216,8 +216,11 @@ namespace GinghamEffect
 
             // Set Pens
             Pen xPen = new Pen(xBrush, Amount1);
+            xBrush.Dispose();
             Pen yPen = new Pen(yBrush, Amount1);
+            yBrush.Dispose();
             Pen xyPen = new Pen(solidBrush, Amount1);
+            solidBrush.Dispose();
 
             // Calculate the number of lines will fit in the selection
             int xLines = (int)Math.Ceiling((double)selection.Height / Amount1 / 2);
@@ -233,6 +236,7 @@ namespace GinghamEffect
                 // Draw line to screen.
                 g.DrawLine(xPen, point1, point2);
             }
+            xPen.Dispose();
             // Draw Vertical Lines
             for (int i = 0; i < yLines; i++)
             {
@@ -243,6 +247,7 @@ namespace GinghamEffect
                 // Draw line to screen.
                 g.DrawLine(yPen, point1, point2);
             }
+            yPen.Dispose();
             // Draw Horizontal & Vertical intersections
             for (int x = 0; x < xLines; x++)
             {
@@ -256,8 +261,10 @@ namespace GinghamEffect
                     g.DrawLine(xyPen, point1, point2);
                 }
             }
+            xyPen.Dispose();
 
             ginghamSurface = Surface.CopyFromBitmap(ginghamBitmap);
+            ginghamBitmap.Dispose();
         }
 
         protected override unsafe void OnRender(Rectangle[] rois, int startIndex, int length)
