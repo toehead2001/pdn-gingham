@@ -130,20 +130,20 @@ namespace GinghamEffect
             configUI.SetPropertyControlValue(PropertyNames.Amount1, ControlInfoPropertyNames.DisplayName, "Line Width");
             configUI.SetPropertyControlValue(PropertyNames.Amount2, ControlInfoPropertyNames.DisplayName, "Color");
             configUI.SetPropertyControlType(PropertyNames.Amount2, PropertyControlType.ColorWheel);
-            configUI.SetPropertyControlValue(PropertyNames.Amount3, ControlInfoPropertyNames.DisplayName, "Horizontal Pattern");
+            configUI.SetPropertyControlValue(PropertyNames.Amount3, ControlInfoPropertyNames.DisplayName, "Horizontal Style");
             PropertyControlInfo Amount3Control = configUI.FindControlForPropertyName(PropertyNames.Amount3);
             Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option1, "Solid - 33% Opacity");
             Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option2, "Solid - 66% Opacity");
             Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option3, "Diagonal Lines - Up");
             Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option4, "Diagonal Lines - Down");
-            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option5, "50/50 Dots");
-            configUI.SetPropertyControlValue(PropertyNames.Amount4, ControlInfoPropertyNames.DisplayName, "Vertical Pattern");
+            Amount3Control.SetValueDisplayName(Amount3Options.Amount3Option5, "Dots - 50/50");
+            configUI.SetPropertyControlValue(PropertyNames.Amount4, ControlInfoPropertyNames.DisplayName, "Vertical Style");
             PropertyControlInfo Amount4Control = configUI.FindControlForPropertyName(PropertyNames.Amount4);
             Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option1, "Solid - 33% Opacity");
             Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option2, "Solid - 66% Opacity");
             Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option3, "Diagonal Lines - Up");
             Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option4, "Diagonal Lines - Down");
-            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option5, "50/50 Dots");
+            Amount4Control.SetValueDisplayName(Amount4Options.Amount4Option5, "Dots - 50/50");
 
             return configUI;
         }
