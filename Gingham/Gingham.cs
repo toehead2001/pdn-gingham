@@ -163,7 +163,8 @@ namespace GinghamEffect
 
             // Fill with white
             Rectangle backgroundRect = new Rectangle(0, 0, selection.Width, selection.Height);
-            ginghamGraphics.FillRectangle(new SolidBrush(Color.White), backgroundRect);
+            using (SolidBrush backColor = new SolidBrush(Color.White))
+                ginghamGraphics.FillRectangle(backColor, backgroundRect);
 
             // Set Brush Styles
             Brush xBrush;
@@ -285,7 +286,7 @@ namespace GinghamEffect
         byte Amount4 = 4; // Vertical Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
         #endregion
 
-        private Surface ginghamSurface;
+        Surface ginghamSurface;
 
         void Render(Surface dst, Surface src, Rectangle rect)
         {
