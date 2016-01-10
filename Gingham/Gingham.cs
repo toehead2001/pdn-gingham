@@ -155,17 +155,15 @@ namespace GinghamEffect
             Amount3 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount3).Value);
             Amount4 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount4).Value);
 
-            base.OnSetRenderInfo(newToken, dstArgs, srcArgs);
-
 
             Rectangle selection = EnvironmentParameters.GetSelection(srcArgs.Bounds).GetBoundsInt();
 
             Bitmap ginghamBitmap = new Bitmap(selection.Width, selection.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            Graphics g = Graphics.FromImage(ginghamBitmap);
+            Graphics ginghamGraphics = Graphics.FromImage(ginghamBitmap);
 
             // Fill with white
             Rectangle backgroundRect = new Rectangle(0, 0, selection.Width, selection.Height);
-            g.FillRectangle(new SolidBrush(Color.White), backgroundRect);
+            ginghamGraphics.FillRectangle(new SolidBrush(Color.White), backgroundRect);
 
             // Set Brush Styles
             Brush xBrush;
@@ -212,15 +210,13 @@ namespace GinghamEffect
                     yBrush = new SolidBrush(Color.FromArgb(85, Amount2));
                     break;
             }
-            Brush solidBrush = new SolidBrush(Amount2);
 
             // Set Pens
             Pen xPen = new Pen(xBrush, Amount1);
             xBrush.Dispose();
             Pen yPen = new Pen(yBrush, Amount1);
             yBrush.Dispose();
-            Pen xyPen = new Pen(solidBrush, Amount1);
-            solidBrush.Dispose();
+            Pen xyPen = new Pen(Amount2, Amount1);
 
             // Calculate the number of lines will fit in the selection
             int xLines = (int)Math.Ceiling((double)selection.Height / Amount1 / 2);
@@ -234,9 +230,10 @@ namespace GinghamEffect
                 Point point2 = new Point(selection.Width, Amount1 / 2 + Amount1 * i * 2);
 
                 // Draw line to screen.
-                g.DrawLine(xPen, point1, point2);
+                ginghamGraphics.DrawLine(xPen, point1, point2);
             }
             xPen.Dispose();
+
             // Draw Vertical Lines
             for (int i = 0; i < yLines; i++)
             {
@@ -245,9 +242,10 @@ namespace GinghamEffect
                 Point point2 = new Point(Amount1 / 2 + Amount1 * i * 2, selection.Height);
 
                 // Draw line to screen.
-                g.DrawLine(yPen, point1, point2);
+                ginghamGraphics.DrawLine(yPen, point1, point2);
             }
             yPen.Dispose();
+
             // Draw Horizontal & Vertical intersections
             for (int x = 0; x < xLines; x++)
             {
@@ -258,21 +256,24 @@ namespace GinghamEffect
                     Point point2 = new Point(Amount1 * 2 * y + Amount1, Amount1 / 2 + Amount1 * x * 2);
 
                     // Draw line to screen.
-                    g.DrawLine(xyPen, point1, point2);
+                    ginghamGraphics.DrawLine(xyPen, point1, point2);
                 }
             }
             xyPen.Dispose();
 
             ginghamSurface = Surface.CopyFromBitmap(ginghamBitmap);
             ginghamBitmap.Dispose();
+
+
+            base.OnSetRenderInfo(newToken, dstArgs, srcArgs);
         }
 
-        protected override unsafe void OnRender(Rectangle[] rois, int startIndex, int length)
+        protected override void OnRender(Rectangle[] renderRects, int startIndex, int length)
         {
             if (length == 0) return;
             for (int i = startIndex; i < startIndex + length; ++i)
             {
-                Render(DstArgs.Surface, SrcArgs.Surface, rois[i]);
+                Render(DstArgs.Surface, SrcArgs.Surface, renderRects[i]);
             }
         }
 
