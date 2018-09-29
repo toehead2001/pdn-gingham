@@ -12,75 +12,20 @@ namespace GinghamEffect
 {
     public class PluginSupportInfo : IPluginSupportInfo
     {
-        public string Author
-        {
-            get
-            {
-                return ((AssemblyCopyrightAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false)[0]).Copyright;
-            }
-        }
-        public string Copyright
-        {
-            get
-            {
-                return ((AssemblyDescriptionAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)[0]).Description;
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                return ((AssemblyProductAttribute)base.GetType().Assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0]).Product;
-            }
-        }
-
-        public Version Version
-        {
-            get
-            {
-                return base.GetType().Assembly.GetName().Version;
-            }
-        }
-
-        public Uri WebsiteUri
-        {
-            get
-            {
-                return new Uri("http://www.getpaint.net/redirect/plugins.html");
-            }
-        }
+        public string Author => base.GetType().Assembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
+        public string Copyright => base.GetType().Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
+        public string DisplayName => base.GetType().Assembly.GetCustomAttribute<AssemblyProductAttribute>().Product;
+        public Version Version => base.GetType().Assembly.GetName().Version;
+        public Uri WebsiteUri => new Uri("https://forums.getpaint.net/index.php?showtopic=32371");
     }
 
     [PluginSupportInfo(typeof(PluginSupportInfo), DisplayName = "Gingham")]
     public class GinghamEffectPlugin : PropertyBasedEffect
     {
-        public static string StaticName
-        {
-            get
-            {
-                return "Gingham";
-            }
-        }
-
-        public static Image StaticIcon
-        {
-            get
-            {
-                return new Bitmap(typeof(GinghamEffectPlugin), "Gingham.png");
-            }
-        }
-
-        public static string SubmenuName
-        {
-            get
-            {
-                return SubmenuNames.Render;  // Programmer's chosen default
-            }
-        }
+        private static readonly Image StaticIcon = new Bitmap(typeof(GinghamEffectPlugin), "Gingham.png");
 
         public GinghamEffectPlugin()
-            : base(StaticName, StaticIcon, SubmenuName, EffectFlags.Configurable)
+            : base("Gingham", StaticIcon, SubmenuNames.Render, EffectFlags.Configurable)
         {
         }
 
@@ -110,15 +55,15 @@ namespace GinghamEffect
             Amount4Option5
         }
 
-
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.Amount1, 20, 2, 100));
-            props.Add(new Int32Property(PropertyNames.Amount2, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff));
-            props.Add(StaticListChoiceProperty.CreateForEnum<Amount3Options>(PropertyNames.Amount3, Amount3Options.Amount3Option3, false));
-            props.Add(StaticListChoiceProperty.CreateForEnum<Amount4Options>(PropertyNames.Amount4, Amount4Options.Amount4Option5, false));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.Amount1, 20, 2, 100),
+                new Int32Property(PropertyNames.Amount2, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff),
+                StaticListChoiceProperty.CreateForEnum<Amount3Options>(PropertyNames.Amount3, Amount3Options.Amount3Option3, false),
+                StaticListChoiceProperty.CreateForEnum<Amount4Options>(PropertyNames.Amount4, Amount4Options.Amount4Option5, false)
+            };
 
             return new PropertyCollection(props);
         }
@@ -154,7 +99,6 @@ namespace GinghamEffect
             Amount2 = ColorBgra.FromOpaqueInt32(newToken.GetProperty<Int32Property>(PropertyNames.Amount2).Value);
             Amount3 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount3).Value);
             Amount4 = (byte)((int)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.Amount4).Value);
-
 
             Rectangle selection = EnvironmentParameters.GetSelection(srcArgs.Bounds).GetBoundsInt();
 
@@ -265,7 +209,6 @@ namespace GinghamEffect
             ginghamSurface = Surface.CopyFromBitmap(ginghamBitmap);
             ginghamBitmap.Dispose();
 
-
             base.OnSetRenderInfo(newToken, dstArgs, srcArgs);
         }
 
@@ -278,17 +221,14 @@ namespace GinghamEffect
             }
         }
 
-        #region User Entered Code
-        #region UICode
-        int Amount1 = 20; // [2,100] Line Width
-        ColorBgra Amount2 = ColorBgra.FromBgr(0, 0, 0); // Color
-        byte Amount3 = 2; // Horizontal Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
-        byte Amount4 = 4; // Vertical Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
-        #endregion
+        private int Amount1 = 20; // [2,100] Line Width
+        private ColorBgra Amount2 = ColorBgra.FromBgr(0, 0, 0); // Color
+        private byte Amount3 = 2; // Horizontal Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
+        private byte Amount4 = 4; // Vertical Pattern|Solid - 33% Opacity|Solid - 66% Opacity|Diagonal Lines - Up|Diagonal Lines - Down|50/50 Dots
 
-        Surface ginghamSurface;
+        private Surface ginghamSurface;
 
-        void Render(Surface dst, Surface src, Rectangle rect)
+        private void Render(Surface dst, Surface src, Rectangle rect)
         {
             Rectangle selection = EnvironmentParameters.GetSelection(src.Bounds).GetBoundsInt();
 
@@ -301,7 +241,5 @@ namespace GinghamEffect
                 }
             }
         }
-
-        #endregion
     }
 }
