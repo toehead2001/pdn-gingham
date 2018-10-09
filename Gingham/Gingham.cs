@@ -161,6 +161,13 @@ namespace GinghamEffect
             DstArgs.Surface.CopySurface(ginghamSurface, renderRects, startIndex, length);
         }
 
+        protected override void OnDispose(bool disposing)
+        {
+            ginghamSurface?.Dispose();
+
+            base.OnDispose(disposing);
+        }
+
         private static Pen BuildPen(LineStyle style, int width, ColorBgra color)
         {
             using (Brush brush = GetBrush(style))
