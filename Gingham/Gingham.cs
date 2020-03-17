@@ -1,12 +1,12 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Reflection;
-using System.Collections.Generic;
-using PaintDotNet;
+﻿using PaintDotNet;
 using PaintDotNet.Effects;
 using PaintDotNet.IndirectUI;
 using PaintDotNet.PropertySystem;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Reflection;
 
 namespace GinghamEffect
 {
@@ -25,7 +25,7 @@ namespace GinghamEffect
         private static readonly Image StaticIcon = new Bitmap(typeof(GinghamEffectPlugin), "Gingham.png");
 
         public GinghamEffectPlugin()
-            : base("Gingham", StaticIcon, SubmenuNames.Render, EffectFlags.Configurable)
+            : base("Gingham", StaticIcon, SubmenuNames.Render, new EffectOptions { Flags = EffectFlags.Configurable })
         {
         }
 
@@ -50,12 +50,12 @@ namespace GinghamEffect
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>
+            IEnumerable<Property> props = new Property[]
             {
                 new Int32Property(PropertyNames.LineWidth, 20, 2, 100),
                 new Int32Property(PropertyNames.Color, ColorBgra.ToOpaqueInt32(ColorBgra.FromBgra(EnvironmentParameters.PrimaryColor.B, EnvironmentParameters.PrimaryColor.G, EnvironmentParameters.PrimaryColor.R, 255)), 0, 0xffffff),
-                StaticListChoiceProperty.CreateForEnum<LineStyle>(PropertyNames.HorStyle, LineStyle.DiagonalLinesUp, false),
-                StaticListChoiceProperty.CreateForEnum<LineStyle>(PropertyNames.VerStyle, LineStyle.Dots5050, false)
+                StaticListChoiceProperty.CreateForEnum(PropertyNames.HorStyle, LineStyle.DiagonalLinesUp, false),
+                StaticListChoiceProperty.CreateForEnum(PropertyNames.VerStyle, LineStyle.Dots5050, false)
             };
 
             return new PropertyCollection(props);
@@ -93,7 +93,7 @@ namespace GinghamEffect
             LineStyle horStyle = (LineStyle)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.HorStyle).Value;
             LineStyle verStyle = (LineStyle)newToken.GetProperty<StaticListChoiceProperty>(PropertyNames.VerStyle).Value;
 
-            Rectangle selection = EnvironmentParameters.GetSelection(srcArgs.Bounds).GetBoundsInt();
+            Rectangle selection = EnvironmentParameters.SelectionBounds;
 
             // Calculate the number of lines will fit in the selection
             int horLines = (int)Math.Ceiling((double)selection.Height / lineWidth / 2);
@@ -106,10 +106,7 @@ namespace GinghamEffect
 
             using (Graphics g = new RenderArgs(ginghamSurface).Graphics)
             {
-                using (SolidBrush backColor = new SolidBrush(Color.White))
-                {
-                    g.FillRectangle(backColor, selection);
-                }
+                g.FillRectangle(Brushes.White, selection);
 
                 // Draw Horizontal Lines
                 using (Pen horPen = BuildPen(horStyle, lineWidth, color))
@@ -163,7 +160,10 @@ namespace GinghamEffect
 
         protected override void OnDispose(bool disposing)
         {
-            ginghamSurface?.Dispose();
+            if (disposing)
+            {
+                ginghamSurface?.Dispose();
+            }
 
             base.OnDispose(disposing);
         }
